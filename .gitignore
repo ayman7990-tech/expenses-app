@@ -12,3 +12,6 @@ __pycache__/
 *.swp
 .vscode/
 .idea/
+
+# Local credential backup (never commit)
+.git_token_backup
