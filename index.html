@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مشروع المصاريف</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ Sidebar ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">⚗️</div>
+      <div><h1>مشروع المصاريف</h1><small>النسخة المطوّرة</small></div>
+    </div>
+    <nav class="nav">
+      <a href="#" class="nav-item active" data-page="dashboard" onclick="go('dashboard')"><span class="ico">📊</span><span>لوحة التحكم</span></a>
+      <a href="#" class="nav-item" data-page="expenses" onclick="go('expenses')"><span class="ico">💰</span><span>المصاريف</span></a>
+      <a href="#" class="nav-item" data-page="reports" onclick="go('reports')"><span class="ico">📈</span><span>التقارير</span></a>
+      <a href="#" class="nav-item" data-page="savings" onclick="go('savings')"><span class="ico">🏦</span><span>الادخار</span></a>
+      <a href="#" class="nav-item" data-page="backup" onclick="go('backup')"><span class="ico">💾</span><span>النسخ الاحتياطي</span></a>
+      <a href="#" class="nav-item" data-page="settings" onclick="go('settings')"><span class="ico">⚙️</span><span>الإعدادات</span></a>
+    </nav>
+    <div class="sidebar-foot">
+      تطبيق محلي بالكامل<br>البيانات على جهازك
+      <span class="badge-v">✨ نسخة مستقلة</span>
+    </div>
+  </aside>
+
+  <!-- ============ Main ============ -->
+  <main class="main">
+
+    <!-- ---------- Dashboard ---------- -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-head">
+        <div><h2>لوحة التحكم</h2><p>نظرة سريعة على مصاريفك وميزانيتك</p></div>
+        <button class="btn ghost sm" onclick="sampleData()">بيانات تجريبية</button>
+      </div>
+
+      <div class="budget-banner" id="budget-banner"></div>
+
+      <div class="stats">
+        <div class="stat"><div class="ic">💵</div><div class="n" id="d-total">0</div><div class="l">إجمالي المصاريف</div></div>
+        <div class="stat blue"><div class="ic">🧾</div><div class="n" id="d-count">0</div><div class="l">عدد المصاريف</div></div>
+        <div class="stat purple"><div class="ic">🏆</div><div class="n" id="d-top">-</div><div class="l">أعلى صنف</div></div>
+        <div class="stat green"><div class="ic">📐</div><div class="n" id="d-avg">0</div><div class="l">متوسط المصروف</div></div>
+      </div>
+
+      <div class="card sav-highlight" onclick="go('savings')" style="cursor:pointer">
+        <div class="sav-hi-right"><div class="sav-hi-label">🏦 رصيد مدخراتك</div><div class="sav-hi-note">اضغط لعرض التفاصيل وإضافة شهور</div></div>
+        <div class="sav-hi-value" id="d-savings">0</div>
+      </div>
+
+      <div class="chart-row">
+        <div class="card">
+          <h3>📊 المصاريف حسب الصنف</h3>
+          <div id="d-bars"></div>
+        </div>
+        <div class="card">
+          <h3>🥧 التوزيع النسبي</h3>
+          <div class="donut-wrap">
+            <div class="donut" id="d-donut"></div>
+            <div class="legend" id="d-legend"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Expenses ---------- -->
+    <section class="page" id="page-expenses">
+      <div class="page-head">
+        <div><h2>المصاريف</h2><p>أضف، اعرض، وصدّر مصاريفك</p></div>
+      </div>
+
+      <div class="card">
+        <h3>➕ إضافة مصروف جديد</h3>
+        <div class="form-grid">
+          <div class="field"><label for="f-cat">الصنف</label><input id="f-cat" placeholder="مثال: أكل، مواصلات، كهرباء"></div>
+          <div class="field"><label for="f-amt">المبلغ</label><input id="f-amt" inputmode="decimal" placeholder="0" onkeydown="if(event.key==='Enter')addEntry()"></div>
+          <div class="field"><label for="f-date">التاريخ</label><input id="f-date" type="date"></div>
+          <div class="field"><button class="btn" onclick="addEntry()">أضف +</button></div>
+        </div>
+        <div class="toolbar">
+          <button class="btn ghost sm" onclick="exportCSV()">⬇ تصدير CSV</button>
+          <label class="btn ghost sm" style="display:inline-block">⬆ استيراد CSV<input type="file" accept=".csv" onchange="importCSV(this)" style="display:none"></label>
+          <button class="btn danger sm" onclick="clearAll()">🗑 مسح الكل</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📋 السجل</h3>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>التاريخ</th><th>الصنف</th><th>المبلغ</th><th></th></tr></thead>
+            <tbody id="tbl-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Reports ---------- -->
+    <section class="page" id="page-reports">
+      <div class="page-head">
+        <div><h2>التقارير</h2><p>تحليل حسب الشهر والصنف</p></div>
+      </div>
+
+      <div class="card">
+        <h3>🗓️ الإجمالي حسب الشهر</h3>
+        <div class="month-grid" id="r-months"></div>
+      </div>
+
+      <div class="chart-row">
+        <div class="card">
+          <h3>📊 الإجمالي حسب الصنف</h3>
+          <div id="r-cats"></div>
+        </div>
+        <div class="card">
+          <h3>🥧 التوزيع النسبي</h3>
+          <div class="donut-wrap">
+            <div class="donut" id="r-donut"></div>
+            <div class="legend" id="r-legend"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Savings ---------- -->
+    <section class="page" id="page-savings">
+      <div class="page-head">
+        <div><h2>الادخار المتراكم</h2><p>١٠٪ من مرتبك كل شهر تتجمع هنا</p></div>
+        <button class="btn sm" onclick="saveCurrentMonth()">+ ادخار الشهر ده</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat green"><div class="ic">🏦</div><div class="n" id="sav-total">0</div><div class="l">إجمالي المدخرات</div></div>
+        <div class="stat blue"><div class="ic">🗓️</div><div class="n" id="sav-count">0</div><div class="l">عدد الشهور</div></div>
+        <div class="stat"><div class="ic">💰</div><div class="n" id="sav-monthly">0</div><div class="l">ادخار كل شهر (١٠٪)</div></div>
+        <div class="stat purple"><div class="ic">⏳</div><div class="n" id="sav-runway">—</div><div class="l">تغطية المدخرات</div></div>
+      </div>
+
+      <div class="card">
+        <h3>📌 شهور مستحقة للادخار <span id="sav-pending" class="pend-count">0</span></h3>
+        <div class="backup-info">الشهور اللي ليها مصاريف ومتسجّلش ادخارها. سجّلها يدوي أو سجّل كلها مرة واحدة.</div>
+        <div id="sav-pending-list"></div>
+        <div class="toolbar" style="margin-top:14px">
+          <button class="btn" onclick="autoSaveAll()">⚡ سجّل كل الشهور المستحقة</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📈 نمو المدخرات</h3>
+        <div id="sav-bars"></div>
+      </div>
+
+      <div class="card">
+        <h3>📋 سجل الادخار</h3>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>الشهر</th><th>المبلغ</th><th>ملاحظة</th><th></th></tr></thead>
+            <tbody id="sav-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Backup ---------- -->
+    <section class="page" id="page-backup">
+      <div class="page-head">
+        <div><h2>النسخ الاحتياطي</h2><p>احمِ بياناتك من الضياع</p></div>
+      </div>
+
+      <div class="card">
+        <h3>💾 حالة النسخة الاحتياطية</h3>
+        <div id="bak-status"></div>
+        <div class="backup-box">
+          <div class="backup-info">
+            عدد المصاريف وقت آخر نسخة: <b id="bak-count">0</b><br>
+            تاريخ آخر نسخة: <b id="bak-last">—</b><br>
+            البيانات الأصلية محفوظة في المتصفح. النسخة بتنزّل ملف JSON تقدر ترجّعه في أي وقت، حتى لو مسحت بيانات المتصفح أو فتحت التطبيق من متصفح تاني.
+          </div>
+          <div class="toolbar" style="margin-top:0">
+            <button class="btn" onclick="makeBackup()">⬇ عمل نسخة احتياطية</button>
+            <label class="btn ghost" style="display:inline-block">⬆ استرجاع من نسخة<input type="file" accept=".json" onchange="restoreBackup(this)" style="display:none"></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>ℹ️ ليه ده مهم؟</h3>
+        <div class="backup-info">
+          لو مسحت بيانات التصفّح (Clear browsing data) أو غيّرت متصفح، كل المصاريف تختفي لأنها في <b>localStorage</b>. النسخة الاحتياطية هي التأمين: خد عادة إنك تعملها مرة كل أسبوع، والتطبيق هيذكّرك لو بقت قديمة.
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Settings ---------- -->
+    <section class="page" id="page-settings">
+      <div class="page-head">
+        <div><h2>الإعدادات</h2><p>اضبط التطبيق على سوقك وميزانيتك</p></div>
+      </div>
+
+      <div class="card">
+        <h3>🎯 خطة المرتب - نظام 90/10</h3>
+        <div class="setting-row">
+          <div style="flex:1">
+            <div class="t">المرتب الشهري (الميزانية)</div>
+            <div class="d">ادخل المرتب كامل. التطبيق هيقسّمه تلقائي: 10% ادخار محمي + 90% مصاريف، وهيمنع أي مصروف يلمس الادخار.</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="cfg-budget" inputmode="decimal" placeholder="0" style="width:120px;text-align:center">
+            <button class="btn sm" onclick="setBudget()">حفظ</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>⚙️ تفضيلات العرض</h3>
+        <div class="setting-row">
+          <div><div class="t">الأرقام العربية</div><div class="d">اعرض الأرقام بصيغة ٠١٢٣ بدل 0123</div></div>
+          <label class="switch"><input type="checkbox" id="cfg-digits" onchange="updateSetting('arabicDigits',this.checked)"><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div><div class="t">رمز العملة</div><div class="d">يظهر بجانب كل مبلغ</div></div>
+          <input id="cfg-currency" onchange="updateSetting('currency',this.value)" style="width:110px;text-align:center">
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>ℹ️ عن التطبيق</h3>
+        <div class="setting-row">
+          <div>
+            <div class="t">مشروع المصاريف - الإصدار 1.1</div>
+            <div class="d">نسخة مستقلة تماماً عن تطبيق التجربة الأول. بياناتها منفصلة تماماً (مفاتيح تخزين خاصة). تطبيق محلي: يعمل في المتصفح، بياناتك على جهازك، مفيش إنترنت أو سيرفر.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast"></div>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
